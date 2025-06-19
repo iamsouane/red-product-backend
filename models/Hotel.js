@@ -1,12 +1,13 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const hotelSchema = new mongoose.Schema({
   name: { type: String, required: true },
   address: { type: String, required: true },
-  price: { type: String, required: true },
-  imageSrc: { type: String, required: true },
-}, {
-  timestamps: true
-});
+  email: String,
+  phone: String,
+  price: String,
+  currency: String,
+  imageUrl: String, // URL relative vers /uploads/nomFichier
+}, { timestamps: true });
 
-module.exports = mongoose.model('Hotel', hotelSchema);
+export default mongoose.model('Hotel', hotelSchema);
