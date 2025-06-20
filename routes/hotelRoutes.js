@@ -1,60 +1,41 @@
 import express from 'express';
 import multer from 'multer';
-import path from 'path';
 import Hotel from '../models/Hotel.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const router = express.Router();
 
-// Config multer (stockage local)
+// Pour gérer __dirname dans ES module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Configurer multer pour stocker les fichiers
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // dossier uploads
+    cb(null, path.join(__dirname, '../uploads'));
   },
   filename: (req, file, cb) => {
-    // nom unique : timestamp + extension
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
     const ext = path.extname(file.originalname);
-    cb(null, Date.now() + ext);
+    cb(null, file.fieldname + '-' + uniqueSuffix + ext);
   },
 });
 const upload = multer({ storage });
 
-// GET all hotels
-router.get('/', async (req, res) => {
-  try {
-    const hotels = await Hotel.find().sort({ createdAt: -1 });
-    res.json(hotels);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// POST new hotel + upload photo
+// Route POST /api/hotels
 router.post('/', upload.single('photo'), async (req, res) => {
   try {
     const { name, address, email, phone, price, currency } = req.body;
-    let imageUrl = '';
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : '';
 
-    if (req.file) {
-      // URL relative accessible depuis frontend
-      imageUrl = `/uploads/${req.file.filename}`;
-    }
-
-    const newHotel = new Hotel({
-      name,
-      address,
-      email,
-      phone,
-      price,
-      currency,
-      imageUrl,
-    });
-
+    const newHotel = new Hotel({ name, address, email, phone, price, currency, imageUrl });
     await newHotel.save();
 
     res.status(201).json(newHotel);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Erreur lors de la création de l’hôtel' });
+  } catch (err) {
+    console.error('Erreur enregistrement hôtel :', err.message);
+    res.status(500).json({ message: 'Erreur serveur' });
   }
 });
 

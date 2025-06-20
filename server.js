@@ -13,9 +13,6 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// Middleware pour lire le JSON
-app.use(express.json());
-
 // CORS pour accepter les requêtes front
 app.use(cors());
 
