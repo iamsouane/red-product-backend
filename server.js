@@ -14,7 +14,10 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 // CORS pour accepter les requêtes front
-app.use(cors());
+app.use(cors({
+  origin: 'https://red-product-frontend-eight.vercel.app', // frontend Vercel
+  credentials: true,
+}));
 
 // Static files (ex: upload d'images)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
