@@ -6,11 +6,11 @@ import { fileURLToPath } from 'url';
 
 const router = express.Router();
 
-// Pour gérer __dirname dans ES module
+// Pour gérer __dirname dans les modules ES
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Configurer multer pour stocker les fichiers
+// 📦 Configuration de multer pour les fichiers uploadés
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, path.join(__dirname, '../uploads'));
@@ -23,7 +23,10 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Route POST /api/hotels
+/**
+ * ✅ ROUTE POST : Enregistrement d’un nouvel hôtel
+ * Endpoint : POST /api/hotels
+ */
 router.post('/', upload.single('photo'), async (req, res) => {
   try {
     const { name, address, email, phone, price, currency } = req.body;
@@ -34,7 +37,21 @@ router.post('/', upload.single('photo'), async (req, res) => {
 
     res.status(201).json(newHotel);
   } catch (err) {
-    console.error('Erreur enregistrement hôtel :', err.message);
+    console.error('❌ Erreur enregistrement hôtel :', err.message);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+});
+
+/**
+ * ✅ ROUTE GET : Liste des hôtels
+ * Endpoint : GET /api/hotels
+ */
+router.get('/', async (req, res) => {
+  try {
+    const hotels = await Hotel.find().sort({ createdAt: -1 });
+    res.status(200).json(hotels);
+  } catch (err) {
+    console.error('❌ Erreur récupération hôtels :', err.message);
     res.status(500).json({ message: 'Erreur serveur' });
   }
 });
