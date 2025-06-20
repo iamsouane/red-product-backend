@@ -6,28 +6,28 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import 'dotenv/config';
 
-// Config __dirname avec ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// Connexion MongoDB
-mongoose.connect('mongodb://localhost:27017/hotelsdb')
-  .then(() => console.log('✅ MongoDB connecté'))
-  .catch(console.error);
+// Connexion MongoDB (via URI Atlas dans MONGODB_URI)
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => console.log('✅ MongoDB Atlas connecté'))
+.catch((err) => console.error('❌ Connexion MongoDB échouée :', err.message));
 
-// Middleware CORS pour autoriser frontend local
+// Middlewares
 app.use(cors());
-
-// Middleware pour servir les fichiers images uploadés
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Routes
 app.use('/api/hotels', hotelsRoutes);
 
-// Démarrage serveur
-const PORT = 5000;
+// Serveur
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`🚀 Serveur en écoute sur le port ${PORT}`);
+  console.log(`🚀 Serveur backend actif sur le port ${PORT}`);
 });
