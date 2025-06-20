@@ -13,7 +13,7 @@ const __dirname = path.dirname(__filename);
 // 📦 Configuration de multer pour les fichiers uploadés
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../uploads'));
+    cb(null, path.join(__dirname, '../public/img'));
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
@@ -30,8 +30,7 @@ const upload = multer({ storage });
 router.post('/', upload.single('photo'), async (req, res) => {
   try {
     const { name, address, email, phone, price, currency } = req.body;
-    const imageUrl = req.file ? `/uploads/${req.file.filename}` : '';
-
+  const imageUrl = req.file ? `/img/${req.file.filename}` : '';
     const newHotel = new Hotel({ name, address, email, phone, price, currency, imageUrl });
     await newHotel.save();
 
